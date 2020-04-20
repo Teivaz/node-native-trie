@@ -1,0 +1,23 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "clang++",
+      "command": "/usr/bin/clang++",
+      "args": [
+        "-g",
+        "${workspaceFolder}/src/trie.test.cpp",
+        "-std=c++11",
+        "-o",
+        "${workspaceFolder}/build/trie.test${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "/usr/bin"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    }
+  ],
+  "version": "2.0.0"
+}
