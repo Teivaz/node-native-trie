@@ -8,6 +8,9 @@
   "type": "git",
   "url": "git@github.com:Teivaz/node-native-trie.git"
  },
+ "keywords": [
+	 "trie", "native", "nodejs"
+ ],
  "private": false,
  "dependencies": {
   "bindings": "~1.2.1",
