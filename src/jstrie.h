@@ -21,9 +21,7 @@ private:
 		return info.Env().Undefined();
 	}
 
-	Napi::Value Match(const Napi::CallbackInfo& info) {
-		return info.Env().Undefined();
-	}
+	Napi::Value Match(const Napi::CallbackInfo& info);
 
 private:
 	Trie<T> m_trie;

@@ -1,24 +1,24 @@
 const trie = require('./native-trie')
 
 test('single match', () => {
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	t.insert('string', 'value')
 	expect(t.match('string')).toEqual(['value'])
 })
 
 test('empty', () => {
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	expect(t.match('string')).toEqual([])
 })
 
 test('no match', () => {
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	t.insert('string', 'value')
 	expect(t.match('string2')).toEqual([])
 })
 
 test('many entries', () => {
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	t.insert('with', '1')
 	t.insert('these', '2')
 	t.insert('expectation', '3')
@@ -63,7 +63,7 @@ test('many entries', () => {
 })
 
 test('unicode', () => {
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	t.insert('normal', 'ascii')
 	t.insert('༚', 'Tibetan Sign Rdel Dkar Gcig')
 	expect(t.match('༚')).toEqual(['Tibetan Sign Rdel Dkar Gcig'])
@@ -71,7 +71,7 @@ test('unicode', () => {
 })
 
 test('unicode mixed', () => {
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	t.insert('normal', 'ascii')
 	t.insert('༚႞႞႞aa', 'unicode ascii')
 	t.insert('༚႞႞႞aa', 'unicode')
@@ -84,10 +84,10 @@ test('unicode mixed', () => {
 	expect(t.match('ba')).toEqual(['ascii 2'])
 })
 
-test('complex unicode', () => {
+test('unicode combining diacrititcs', () => {
 	// The ambigous symbols like 'é' ('\u00E9') and 'é' ('\u0065\u0301') should not be matched by this trie
 	// Instead they should be normalized before being added
-	const t = new trie.StringStringTrie()
+	const t = new trie.StringTrie()
 	t.insert('e', 'character e')
 	t.insert('é', 'character é')
 	t.insert('e\u0301', 'e and combining accent')

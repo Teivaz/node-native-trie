@@ -3,16 +3,30 @@
 #include "trienode.h"
 
 #include <vector>
+#include <deque>
 #include <utility>
 #include <algorithm>
-
-// E - element type is POD
-// C - container type
+#include <limits>
 
 struct TrieIntCore {
 	using Element = int;
 	using Container = std::vector<Element>;
 	using TerminalNode = unsigned long long int;
+};
+
+struct TrieMatchParams {
+	TrieMatchParams(bool includeExactMatch = true, std::size_t maxDepth = std::numeric_limits<std::size_t>::max(), std::size_t maxElements = std::numeric_limits<std::size_t>::max())
+	: includeExactMatch(includeExactMatch)
+	, maxDepth(maxDepth)
+	, maxElements(maxElements) {}
+
+	TrieMatchParams(std::size_t maxDepth = std::numeric_limits<std::size_t>::max(), std::size_t maxElements = std::numeric_limits<std::size_t>::max())
+	: maxDepth(maxDepth)
+	, maxElements(maxElements) {}
+
+	bool includeExactMatch = true;
+	std::size_t maxDepth = std::numeric_limits<std::size_t>::max();
+	std::size_t maxElements = std::numeric_limits<std::size_t>::max();
 };
 
 template<typename T = TrieIntCore>
@@ -51,39 +65,59 @@ public:
 	}
 
 	struct NoStopMatchResult {
+		NoStopMatchResult(std::vector<typename T::TerminalNode> const& nodes, std::size_t depth) : nodes(nodes), depth(depth) {}
+		NoStopMatchResult(std::vector<typename T::TerminalNode> const& nodes, std::size_t truncate, std::size_t depth)
+		: nodes(std::begin(nodes), std::begin(nodes) + truncate), depth(depth) {}
+		
 		std::vector<typename T::TerminalNode> nodes;
 		std::size_t depth;
 	};
 
-/*
-	std::vector<NoStopMatchResult> matchNoStop(typename T::Container const& sequence, const std::size_t limit = 0) const {
+	std::vector<NoStopMatchResult> match(typename T::Container const& sequence, TrieMatchParams params) const {
 		std::vector<NoStopMatchResult> result;
-		
+		std::size_t totalElements = 0;
+
 		auto foundNode = matchNode(sequence);
 		if (!foundNode) {
 			return result;
 		}
-		result.emplace_back({foundNode->terminals, 0});
 
-		std::list<Node*> a;
-		a.
+		struct NodeResultBfs {
+			NodeResultBfs(Node const* node, std::size_t depth) : node(node), depth(depth) {}
+			
+			Node const* node;
+			std::size_t depth;
+		};
 
-		foundNode
+		std::deque<NodeResultBfs> sweepBuffer;
+		sweepBuffer.emplace_back(foundNode, 0);
 
-		auto currentIterator = std::begin(sequence);
-		auto currentNode = &m_root;
+		while (!sweepBuffer.empty()) {
+			auto const current = sweepBuffer.front();
 
-		while (currentIterator != std::end(sequence)) {
-			auto found = currentNode->children.find(*currentIterator);
-			if (found == std::end(currentNode->children)) {
-				return {};
+			auto const hasElements = current.node->terminals.size() > 0;
+			auto const shouldSkip = (current.depth == 0) && !params.includeExactMatch;
+			if (hasElements && !shouldSkip) {
+				if (totalElements + current.node->children.size() >= params.maxElements) {
+					const std::size_t elementsToAdd = params.maxElements - totalElements;
+					result.emplace_back(current.node->terminals, elementsToAdd, current.depth);
+					return result;
+				}
+				else {
+					totalElements += current.node->children.size();
+					result.emplace_back(current.node->terminals, current.depth);
+				}
 			}
-			currentNode = &found->second;
-			++currentIterator;
+
+			if (params.maxDepth >= current.depth + 1) {
+				for (auto const& child : current.node->children) {
+					sweepBuffer.emplace_back(&child.second, current.depth + 1);
+				}
+			}
+			sweepBuffer.pop_front();
 		}
-		return currentNode->terminals;
+		return result;
 	}
-*/
 
 private:
 	using Node = TrieNode<typename T::Element, typename T::TerminalNode>;

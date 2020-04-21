@@ -17,5 +17,5 @@ function Trie(trieType) {
 	return TrieConstructor
 }
 
-module.exports.StringObjectTrie = Trie(trie_native.StringObjectTrie)
-module.exports.StringStringTrie = Trie(trie_native.StringStringTrie)
+module.exports.ObjectTrie = Trie(trie_native.StringObjectTrie)
+module.exports.StringTrie = Trie(trie_native.StringStringTrie)

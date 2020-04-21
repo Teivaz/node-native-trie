@@ -40,4 +40,7 @@ int main() {
 	}
 	std::cout << "\n";
 	result.clear();
+
+	t.match({1, 2, 3}, {false, 1, 1});
+
 }

@@ -37,76 +37,55 @@ Napi::Object WrappedTrie<T>::Init(Napi::Env env, char const* name, Napi::Object 
 	return exports;
 }
 
+std::vector<std::string> stringVectorFromArray(Napi::Array const& input) {
+	uint32_t const length = input.Length();
+	std::vector<std::string> result(length);
+	for (uint32_t i = 0; i < length; i++) {
+		result.push_back(input.Get(i).As<Napi::String>());
+	}
+	return result;
+}
+
+template<typename T>
+Napi::Array terminalNodesToArray(Napi::Env env, std::vector<Napi::Reference<T> const*> const& nodes) {
+	auto result = Napi::Array::New(env, nodes.size());
+	for (uint32_t i = 0; i < nodes.size(); i++) {
+		result.Set(i, nodes[i]->Value());
+	}
+	return result;
+}
+
+template<typename T>
+Napi::Array terminalNodesToArray(Napi::Env env, std::vector<T const*> const& nodes) {
+	auto result = Napi::Array::New(env, nodes.size());
+	for (uint32_t i = 0; i < nodes.size(); i++) {
+		result.Set(i, *nodes[i]);
+	}
+	return result;
+}
+
 template<>
 Napi::Value WrappedTrie<TrieStringObjectCore>::Insert(const Napi::CallbackInfo& info) {
-	auto a = info[0].As<Napi::Array>();
-
-	uint32_t length = a.Length();
-	std::vector<std::string> sequence(length);
-	for (uint32_t i = 0; i < length; i++) {
-		sequence.push_back(a.Get(i).As<Napi::String>());
-	}
-
+	auto const sequence = stringVectorFromArray(info[0].As<Napi::Array>());
 	if (info[1].IsObject()) {
 		m_trie.insert(sequence, Napi::Persistent(info[1]));
 	}
 	else {
 		//insert(sequence, Napi::Persistent(Napi::Object(info.Env(), info[1])));
 	}
-
 	return info.Env().Undefined();
 }
-
-template<>
-Napi::Value WrappedTrie<TrieStringObjectCore>::Match(const Napi::CallbackInfo& info) {
-	auto a = info[0].As<Napi::Array>();
-
-	uint32_t length = a.Length();
-	std::vector<std::string> sequence(length);
-	for (uint32_t i = 0; i < length; i++) {
-		sequence.push_back(a.Get(i).As<Napi::String>());
-	}
-	const auto matchedNodes = m_trie.matchRef(sequence);
-
-	auto result = Napi::Array::New(info.Env(), matchedNodes.size());
-	for (uint32_t i = 0; i < matchedNodes.size(); i++) {
-		result.Set(i, matchedNodes[i]->Value());
-	}
-	
-	return result;
-}
-
 
 template<>
 Napi::Value WrappedTrie<TrieStringStringCore>::Insert(const Napi::CallbackInfo& info) {
-	auto a = info[0].As<Napi::Array>();
-
-	uint32_t length = a.Length();
-	std::vector<std::string> sequence(length);
-	for (uint32_t i = 0; i < length; i++) {
-		sequence.push_back(a.Get(i).As<Napi::String>());
-	}
-
+	auto const sequence = stringVectorFromArray(info[0].As<Napi::Array>());
 	m_trie.insert(sequence, info[1].As<Napi::String>());
-
 	return info.Env().Undefined();
 }
 
-template<>
-Napi::Value WrappedTrie<TrieStringStringCore>::Match(const Napi::CallbackInfo& info) {
-	auto a = info[0].As<Napi::Array>();
-
-	uint32_t length = a.Length();
-	std::vector<std::string> sequence(length);
-	for (uint32_t i = 0; i < length; i++) {
-		sequence.push_back(a.Get(i).As<Napi::String>());
-	}
+template<typename T>
+Napi::Value WrappedTrie<T>::Match(const Napi::CallbackInfo& info) {
+	auto const sequence = stringVectorFromArray(info[0].As<Napi::Array>());
 	const auto matchedNodes = m_trie.matchRef(sequence);
-
-	auto result = Napi::Array::New(info.Env(), matchedNodes.size());
-	for (uint32_t i = 0; i < matchedNodes.size(); i++) {
-		result.Set(i, *matchedNodes[i]);
-	}
-	
-	return result;
+	return terminalNodesToArray(info.Env(), matchedNodes);
 }

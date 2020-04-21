@@ -1,7 +1,7 @@
 {
  "name": "native-trie",
  "author": "Teivaz <npm@teivaz.com> (http://teivaz.com)",
- "version": "0.0.1",
+ "version": "0.1.0",
  "description": "An abstract in-memory trie structure",
  "main": "src/native-trie.js",
  "repository": {
@@ -9,7 +9,9 @@
   "url": "git@github.com:Teivaz/node-native-trie.git"
  },
  "keywords": [
-	 "trie", "native", "nodejs"
+  "trie",
+  "native",
+  "nodejs"
  ],
  "private": false,
  "dependencies": {
