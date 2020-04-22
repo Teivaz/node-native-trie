@@ -1,4 +1,4 @@
-const trie = require('./native-trie')
+import * as trie from './native-trie'
 
 test('single match', () => {
 	const t = new trie.StringTrie()
