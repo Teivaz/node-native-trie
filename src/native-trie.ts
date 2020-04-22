@@ -1,15 +1,40 @@
 import bindings from 'bindings'
 
+export interface MatchParameters {
+	/**
+	 * @brief If the result should include the exact match
+	 * 
+	 * @default true
+	 */
+	includeExactMatch:boolean
+
+	/**
+	 * @brief Maximal depth after last node in the value being matched
+	 * 
+	 * @default -1 (all)
+	 */
+	maxDepth:number
+
+	/**
+	 * @brief Maximal number of terminal nodes to be returned
+	 * 
+	 * @default -1 (all)
+	 */
+	maxElements:number
+}
+
 interface StringObjectTrie {
-	new(): StringObjectTrie
-	insert: (trieNodes:string[], terminalNode:object)=>void
-	match: (trieNodes:string[])=>object[]
+	new():StringObjectTrie
+	insert(trieNodes:string[], terminalNode:object):void
+	match(trieNodes:string[]):object[]
+	matchPartial(trieNodes:string[], params:MatchParameters):object[][]
 }
 
 interface StringStringTrie {
-	new(): StringStringTrie
-	insert: (trieNodes:string[], terminalNode:string)=>void
-	match: (trieNodes:string[])=>string[]
+	new():StringStringTrie
+	insert(trieNodes:string[], terminalNode:string):void
+	match(trieNodes:string[]):string[]
+	matchPartial(trieNodes:string[], params:MatchParameters):string[][]
 }
 
 const trieNative:{
@@ -17,7 +42,13 @@ const trieNative:{
 	StringStringTrie:StringStringTrie,
 } = bindings('native-trie')
 
-export class ObjectTrie {
+interface Trie <Value, Node> {
+	insert(value:Value, node:Node):void
+	match(value:Value):Node[]
+	matchPartial(value:Value, params?:MatchParameters):Node[][]
+}
+
+export class ObjectTrie implements Trie<string, object> {
 	private _impl:StringObjectTrie
 
 	constructor() {
@@ -31,9 +62,16 @@ export class ObjectTrie {
 	match(value:string):object[] {
 		return this._impl.match(value.split(''))
 	}
+
+	matchPartial(value:string, params?:MatchParameters):object[][] {
+		if (params === undefined) {
+			params = {includeExactMatch: false, maxDepth: -1, maxElements: -1}
+		}
+		return this._impl.matchPartial(value.split(''), params)
+	}
 }
 
-export class StringTrie {
+export class StringTrie implements Trie<string, string> {
 	private _impl:StringStringTrie
 
 	constructor() {
@@ -46,5 +84,12 @@ export class StringTrie {
 
 	match(value:string):string[] {
 		return this._impl.match(value.split(''))
+	}
+
+	matchPartial(value:string, params?:MatchParameters):string[][] {
+		if (params === undefined) {
+			params = {includeExactMatch: false, maxDepth: -1, maxElements: -1}
+		}
+		return this._impl.matchPartial(value.split(''), params)
 	}
 }
