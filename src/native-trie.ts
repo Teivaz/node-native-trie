@@ -23,23 +23,16 @@ export interface MatchParameters {
 	maxElements:number
 }
 
-interface StringObjectTrie {
-	new():StringObjectTrie
-	insert(trieNodes:string[], terminalNode:object):void
-	match(trieNodes:string[]):object[]
-	matchPartial(trieNodes:string[], params:MatchParameters):object[][]
-}
-
-interface StringStringTrie {
-	new():StringStringTrie
-	insert(trieNodes:string[], terminalNode:string):void
-	match(trieNodes:string[]):string[]
-	matchPartial(trieNodes:string[], params:MatchParameters):string[][]
+interface NativeTrie <Value, Node> {
+	new():NativeTrie<Value, Node>
+	insert(trieNodes:Value[], terminalNode:Node):void
+	match(trieNodes:Value[]):Node[]
+	matchPartial(trieNodes:Value[], params?:Partial<MatchParameters>):Node[][]
 }
 
 const trieNative:{
-	StringObjectTrie:StringObjectTrie,
-	StringStringTrie:StringStringTrie,
+	StringObjectTrie:NativeTrie<string, object>,
+	StringStringTrie:NativeTrie<string, string>,
 } = bindings('native-trie')
 
 interface Trie <Value, Node> {
@@ -49,7 +42,7 @@ interface Trie <Value, Node> {
 }
 
 export class ObjectTrie implements Trie<string, object> {
-	private _impl:StringObjectTrie
+	private _impl:NativeTrie<string, object>
 
 	constructor() {
 		this._impl = new trieNative.StringObjectTrie()
@@ -63,16 +56,13 @@ export class ObjectTrie implements Trie<string, object> {
 		return this._impl.match(value.split(''))
 	}
 
-	matchPartial(value:string, params?:MatchParameters):object[][] {
-		if (params === undefined) {
-			params = {includeExactMatch: false, maxDepth: -1, maxElements: -1}
-		}
+	matchPartial(value:string, params?:Partial<MatchParameters>):object[][] {
 		return this._impl.matchPartial(value.split(''), params)
 	}
 }
 
 export class StringTrie implements Trie<string, string> {
-	private _impl:StringStringTrie
+	private _impl:NativeTrie<string, string>
 
 	constructor() {
 		this._impl = new trieNative.StringStringTrie()
@@ -86,10 +76,7 @@ export class StringTrie implements Trie<string, string> {
 		return this._impl.match(value.split(''))
 	}
 
-	matchPartial(value:string, params?:MatchParameters):string[][] {
-		if (params === undefined) {
-			params = {includeExactMatch: false, maxDepth: -1, maxElements: -1}
-		}
+	matchPartial(value:string, params?:Partial<MatchParameters>):string[][] {
 		return this._impl.matchPartial(value.split(''), params)
 	}
 }

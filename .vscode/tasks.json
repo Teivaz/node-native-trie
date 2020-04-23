@@ -9,7 +9,7 @@
         "${workspaceFolder}/src/trie.test.cpp",
         "-std=c++11",
         "-o",
-        "${workspaceFolder}/build/trie.test${fileBasenameNoExtension}"
+        "${workspaceFolder}/build/trie.test"
       ],
       "options": {
         "cwd": "/usr/bin"

@@ -22,6 +22,10 @@ private:
 	}
 
 	Napi::Value Match(const Napi::CallbackInfo& info);
+	
+	Napi::Value MatchPatrial(const Napi::CallbackInfo& info) {
+		return info.Env().Undefined();
+	}
 
 private:
 	Trie<T> m_trie;

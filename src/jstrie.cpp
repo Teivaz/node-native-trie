@@ -27,7 +27,8 @@ Napi::Object WrappedTrie<T>::Init(Napi::Env env, char const* name, Napi::Object 
   Napi::HandleScope scope(env);
   Napi::Function func = WrappedTrie<T>::DefineClass(env, name, {
 		WrappedTrie<T>::InstanceMethod("insert", &WrappedTrie<T>::Insert),
-		WrappedTrie<T>::InstanceMethod("match", &WrappedTrie<T>::Match)
+		WrappedTrie<T>::InstanceMethod("match", &WrappedTrie<T>::Match),
+		WrappedTrie<T>::InstanceMethod("matchPartial", &WrappedTrie<T>::MatchPatrial)
 	});
 
   WrappedTrie<T>::constructor = Napi::Persistent(func);
@@ -86,6 +87,32 @@ Napi::Value WrappedTrie<TrieStringStringCore>::Insert(const Napi::CallbackInfo& 
 template<typename T>
 Napi::Value WrappedTrie<T>::Match(const Napi::CallbackInfo& info) {
 	auto const sequence = stringVectorFromArray(info[0].As<Napi::Array>());
-	const auto matchedNodes = m_trie.matchRef(sequence);
+	const auto matchedNodes = m_trie.match(sequence);
 	return terminalNodesToArray(info.Env(), matchedNodes);
+}
+
+template<>
+Napi::Value WrappedTrie<TrieStringStringCore>::MatchPatrial(const Napi::CallbackInfo& info) {
+	auto const sequence = stringVectorFromArray(info[0].As<Napi::Array>());
+	TrieMatchParams params;
+	if (info.Length() > 1 && info[1].IsObject()) {
+		auto const paramsObject = info[1].As<Napi::Object>();
+		if (paramsObject.Has("includeExactMatch")) {
+			params.includeExactMatch = paramsObject.Get("includeExactMatch").ToBoolean();
+		}
+		if (paramsObject.Has("maxDepth")) {
+			params.maxDepth = (std::size_t)paramsObject.Get("maxDepth").ToNumber().Int32Value();
+		}
+		if (paramsObject.Has("maxElements")) {
+			params.maxElements = (std::size_t)paramsObject.Get("maxElements").ToNumber().Int32Value();
+		}
+	}
+	auto const matchedNodes = m_trie.match(sequence, params);
+
+	auto result = Napi::Object::New(info.Env());
+	for (auto pair : matchedNodes) {
+		result.Set((uint32_t)pair.first, terminalNodesToArray(info.Env(), pair.second));
+	}
+
+	return result;
 }

@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <deque>
+#include <map>
 #include <utility>
 #include <algorithm>
 #include <limits>
@@ -18,10 +19,6 @@ struct TrieMatchParams {
 	TrieMatchParams(bool includeExactMatch = true, std::size_t maxDepth = std::numeric_limits<std::size_t>::max(), std::size_t maxElements = std::numeric_limits<std::size_t>::max())
 	: includeExactMatch(includeExactMatch)
 	, maxDepth(maxDepth)
-	, maxElements(maxElements) {}
-
-	TrieMatchParams(std::size_t maxDepth = std::numeric_limits<std::size_t>::max(), std::size_t maxElements = std::numeric_limits<std::size_t>::max())
-	: maxDepth(maxDepth)
 	, maxElements(maxElements) {}
 
 	bool includeExactMatch = true;
@@ -45,15 +42,7 @@ public:
 		trieNode.terminals.push_back(std::move(node));
 	}
 
-	std::vector<typename T::TerminalNode> match(typename T::Container const& sequence) const {
-		auto foundNode = matchNode(sequence);
-		if (!foundNode) {
-			return {};
-		}
-		return foundNode->terminals;
-	}
-
-	std::vector<typename T::TerminalNode const*> matchRef(typename T::Container const& sequence) const {
+	std::vector<typename T::TerminalNode const*> match(typename T::Container const& sequence) const {
 		auto foundNode = matchNode(sequence);
 		if (!foundNode) {
 			return {};
@@ -64,17 +53,10 @@ public:
 		return result;
 	}
 
-	struct NoStopMatchResult {
-		NoStopMatchResult(std::vector<typename T::TerminalNode> const& nodes, std::size_t depth) : nodes(nodes), depth(depth) {}
-		NoStopMatchResult(std::vector<typename T::TerminalNode> const& nodes, std::size_t truncate, std::size_t depth)
-		: nodes(std::begin(nodes), std::begin(nodes) + truncate), depth(depth) {}
-		
-		std::vector<typename T::TerminalNode> nodes;
-		std::size_t depth;
-	};
+	using PartialMatchResult = std::map<std::size_t, std::vector<typename T::TerminalNode const*>>;
 
-	std::vector<NoStopMatchResult> match(typename T::Container const& sequence, TrieMatchParams params) const {
-		std::vector<NoStopMatchResult> result;
+	PartialMatchResult match(typename T::Container const& sequence, TrieMatchParams params) const {
+		PartialMatchResult result;
 		std::size_t totalElements = 0;
 
 		auto foundNode = matchNode(sequence);
@@ -98,14 +80,16 @@ public:
 			auto const hasElements = current.node->terminals.size() > 0;
 			auto const shouldSkip = (current.depth == 0) && !params.includeExactMatch;
 			if (hasElements && !shouldSkip) {
-				if (totalElements + current.node->children.size() >= params.maxElements) {
-					const std::size_t elementsToAdd = params.maxElements - totalElements;
-					result.emplace_back(current.node->terminals, elementsToAdd, current.depth);
+				if (current.node->terminals.empty()) {
+				}
+				else if (totalElements + current.node->terminals.size() >= params.maxElements) {
+					std::size_t const elementsToAdd = params.maxElements - totalElements;
+					std::transform(std::begin(current.node->terminals), std::begin(current.node->terminals) + elementsToAdd, std::back_inserter(result[current.depth]), [](typename T::TerminalNode const& a){return &a;});
 					return result;
 				}
 				else {
-					totalElements += current.node->children.size();
-					result.emplace_back(current.node->terminals, current.depth);
+					totalElements += current.node->terminals.size();
+					std::transform(std::begin(current.node->terminals), std::end(current.node->terminals), std::back_inserter(result[current.depth]), [](typename T::TerminalNode const& a){return &a;});
 				}
 			}
 

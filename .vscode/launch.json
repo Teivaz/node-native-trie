@@ -8,7 +8,7 @@
 			"name": "clang++",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/build/trie.test${fileBasenameNoExtension}",
+			"program": "${workspaceFolder}/build/trie.test",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
