@@ -17,3 +17,6 @@ The `insert` function creates all required nodes in the trie and stores a termin
 
 The `match` function searches the trie and returns all terminal values that have exact match.
 
+### The `matchPartial` function
+
+The `matchPartial` function searches for the given sequence in the trie but does not stop at the exact match. Instead it searches in breadth the trie for all possible continuations of it. The result is an object where keys are depth of a node after last matched element and the keys are the nodes for corresponding depths. The search can be limited by depth and by number of elements.

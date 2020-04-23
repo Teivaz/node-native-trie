@@ -2,7 +2,7 @@
  "license": "MIT",
  "name": "native-trie",
  "author": "Teivaz <npm@teivaz.com> (http://teivaz.com)",
- "version": "0.1.0",
+ "version": "0.1.1",
  "description": "An abstract in-memory trie structure",
  "main": "src/native-trie.js",
  "repository": {
