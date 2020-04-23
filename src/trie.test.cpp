@@ -23,7 +23,7 @@ std::string operator+(Match m) {
 			firstKey = false;
 		}
 		else {
-			s << ",";
+			s << ", ";
 		}
 		s << i.first << ":[";
 		bool firstValue = true;
@@ -76,7 +76,7 @@ TEST_CASE("matchPartial | multiple level partial match", "[partial]") {
 	auto t = StringTrie();
 	t.insert("abcd", "value 1");
 	t.insert("abcde", "value 2");
-	REQUIRE(+t.match("a", {}) == "{3:['value 1'],4:['value 2']}");
+	REQUIRE(+t.match("a", {}) == "{3:['value 1'], 4:['value 2']}");
 }
 
 TEST_CASE("matchPartial | complex match", "[partial]") {
@@ -88,7 +88,7 @@ TEST_CASE("matchPartial | complex match", "[partial]") {
 	t.insert("abcdefg", "4.1");
 	t.insert("abcdefg", "4.2");
 	t.insert("bcdef", "0");
-	REQUIRE(+t.match("abcd", {}) == "{0:['1.1','1.2'],1:['2.1','2.2'],3:['4.1','4.2']}");
+	REQUIRE(+t.match("abcd", {}) == "{0:['1.1','1.2'], 1:['2.1','2.2'], 3:['4.1','4.2']}");
 }
 
 TEST_CASE("matchPartial | constrained partial match: no exact match", "[partial]") {
@@ -100,10 +100,10 @@ TEST_CASE("matchPartial | constrained partial match: no exact match", "[partial]
 	t.insert("abcdefg", "4.1");
 	t.insert("abcdefg", "4.2");
 	t.insert("bcdef", "0");
-	REQUIRE(+t.match("abcd", TrieMatchParams{false}) == "{1:['2.1','2.2'],3:['4.1','4.2']}");
+	REQUIRE(+t.match("abcd", TrieMatchParams{false}) == "{1:['2.1','2.2'], 3:['4.1','4.2']}");
 }
 
-TEST_CASE("matchPartial | constrained partial match: limited depth", "[partial]") {
+TEST_CASE("matchPartial | constrained | limited depth", "[partial]") {
 	auto t = StringTrie();
 	t.insert("abcd", "1.1");
 	t.insert("abcd", "1.2");
@@ -112,10 +112,10 @@ TEST_CASE("matchPartial | constrained partial match: limited depth", "[partial]"
 	t.insert("abcdefg", "4.1");
 	t.insert("abcdefg", "4.2");
 	t.insert("bcdef", "0");
-	REQUIRE(+t.match("abcd", TrieMatchParams{true, 2}) == "{0:['1.1','1.2'],1:['2.1','2.2']}");
+	REQUIRE(+t.match("abcd", TrieMatchParams{true, 2}) == "{0:['1.1','1.2'], 1:['2.1','2.2']}");
 }
 
-TEST_CASE("matchPartial | constrained partial match: limited depth with empty", "[partial]") {
+TEST_CASE("matchPartial | constrained partial match | limited count without exact", "[partial]") {
 	auto t = StringTrie();
 	t.insert("abcd", "1.1");
 	t.insert("abcd", "1.2");
@@ -127,7 +127,7 @@ TEST_CASE("matchPartial | constrained partial match: limited depth with empty", 
 	REQUIRE(+t.match("abcd", TrieMatchParams{false, (std::size_t)-1, 1}) == "{1:['2.1']}");
 }
 
-TEST_CASE("matchPartial | constrained partial match: limited number", "[partial]") {
+TEST_CASE("matchPartial | constrained partial match | limited number", "[partial]") {
 	auto t = StringTrie();
 	t.insert("abcd", "1.1");
 	t.insert("abcd", "1.2");
@@ -136,5 +136,5 @@ TEST_CASE("matchPartial | constrained partial match: limited number", "[partial]
 	t.insert("abcdefg", "4.1");
 	t.insert("abcdefg", "4.2");
 	t.insert("bcdef", "0");
-	REQUIRE(+t.match("abcd", TrieMatchParams{true, (std::size_t)-1, 3}) == "{0:['1.1','1.2'],1:['2.1']}");
+	REQUIRE(+t.match("abcd", TrieMatchParams{true, (std::size_t)-1, 3}) == "{0:['1.1','1.2'], 1:['2.1']}");
 }

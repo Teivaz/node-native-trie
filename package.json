@@ -1,4 +1,5 @@
 {
+ "license": "MIT",
  "name": "native-trie",
  "author": "Teivaz <npm@teivaz.com> (http://teivaz.com)",
  "version": "0.1.0",

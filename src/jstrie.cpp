@@ -40,7 +40,8 @@ Napi::Object WrappedTrie<T>::Init(Napi::Env env, char const* name, Napi::Object 
 
 std::vector<std::string> stringVectorFromArray(Napi::Array const& input) {
 	uint32_t const length = input.Length();
-	std::vector<std::string> result(length);
+	std::vector<std::string> result;
+	result.reserve(length);
 	for (uint32_t i = 0; i < length; i++) {
 		result.push_back(input.Get(i).As<Napi::String>());
 	}

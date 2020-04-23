@@ -164,7 +164,7 @@ describe('matchPartial', () => {
 		expect(t.matchPartial('abcd')).toEqual({0: ['1.1','1.2'], 1:['2.1','2.2'], 3:['4.1','4.2']})
 	})
 
-	test('constrained partial match: no exact match', () => {
+	test('constrained | no exact match', () => {
 		const t = new trie.StringTrie()
 		t.insert('abcd', '1.1')
 		t.insert('abcd', '1.2')
@@ -176,7 +176,7 @@ describe('matchPartial', () => {
 		expect(t.matchPartial('abcd', {includeExactMatch: false})).toEqual({1:['2.1','2.2'], 3:['4.1','4.2']})
 	})
 
-	test('constrained partial match: limited depth', () => {
+	test('constrained | limited depth', () => {
 		const t = new trie.StringTrie()
 		t.insert('abcd', '1.1')
 		t.insert('abcd', '1.2')
@@ -188,7 +188,7 @@ describe('matchPartial', () => {
 		expect(t.matchPartial('abcd', {maxDepth: 2})).toEqual({0:['1.1','1.2'], 1:['2.1','2.2']})
 	})
 
-	test('constrained partial match: limited depth with empty', () => {
+	test('constrained | limited depth with empty', () => {
 		const t = new trie.StringTrie()
 		t.insert('abcd', '1.1')
 		t.insert('abcd', '1.2')
@@ -197,10 +197,10 @@ describe('matchPartial', () => {
 		t.insert('abcdefg', '4.1')
 		t.insert('abcdefg', '4.2')
 		t.insert('bcdef', '0')
-		expect(t.matchPartial('abcd', {maxDepth: 3})).toEqual({0:['1.1','1.2'], 1:['2.1','2.2']})
+		expect(t.matchPartial('abcd', {includeExactMatch: false, maxDepth: -1, maxElements: 1})).toEqual({1:['2.1']})
 	})
 
-	test('constrained partial match: limited number', () => {
+	test('constrained | limited number', () => {
 		const t = new trie.StringTrie()
 		t.insert('abcd', '1.1')
 		t.insert('abcd', '1.2')

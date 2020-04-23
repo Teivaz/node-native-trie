@@ -2,7 +2,7 @@
   "tasks": [
     {
       "type": "shell",
-      "label": "clang++",
+      "label": "build c++ tests",
       "command": "/usr/bin/clang++",
       "args": [
         "-g",
@@ -17,6 +17,12 @@
       "problemMatcher": [
         "$gcc"
       ]
+    },
+    {
+      "type": "shell",
+      "label": "build c++ node module",
+      "command": "node-gyp",
+      "args": ["rebuild"]
     }
   ],
   "version": "2.0.0"
