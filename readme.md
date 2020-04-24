@@ -1,5 +1,9 @@
 # Native NodeJS trie module
 
+```
+npm i native-trie
+```
+
 It is designed to be fast and handle large tries.
 
 Currently stores whole trie in memory.
