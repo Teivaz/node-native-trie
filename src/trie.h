@@ -95,7 +95,7 @@ public:
 
 			if (params.maxDepth >= current.depth + 1) {
 				for (auto const& child : current.node->children) {
-					sweepBuffer.emplace_back(&child.second, current.depth + 1);
+					sweepBuffer.emplace_back(child.second.get(), current.depth + 1);
 				}
 			}
 			sweepBuffer.pop_front();
@@ -115,7 +115,7 @@ private:
 			if (found == std::end(currentNode->children)) {
 				return nullptr;
 			}
-			currentNode = &found->second;
+			currentNode = found->second.get();
 			++currentIterator;
 		}
 		return currentNode;
@@ -131,7 +131,7 @@ private:
 				break;
 			}
 			++currentIterator;
-			currentNode = &found->second;
+			currentNode = found->second.get();
 		}
 		return {*currentNode, currentIterator};
 	}
@@ -140,8 +140,8 @@ private:
 		auto dest = &at;
 		while (from != to) {
 			auto const nodeValue = *from++;
-			auto inserted = dest->children.insert(std::make_pair(nodeValue, Node())).first;
-			dest = &inserted->second;
+			auto inserted = dest->children.insert(std::make_pair(nodeValue, std::unique_ptr<Node>(new Node()))).first;
+			dest = inserted->second.get();
 		}
 		return *dest;
 	}

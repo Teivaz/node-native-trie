@@ -1,4 +1,6 @@
 #include "jstrie.h"
+#include <string>
+#include <vector>
 
 struct TrieStringObjectCore {
 	using Element = std::string;
